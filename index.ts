@@ -6,7 +6,7 @@ import {
   Platform,
 } from 'react-native';
 
-const {RNAudioRecorderPlayer} = NativeModules;
+const { RNAudioRecorderPlayer } = NativeModules;
 
 export enum AudioSourceAndroidType {
   DEFAULT = 0,
@@ -314,7 +314,7 @@ class AudioRecorderPlayer {
     }
 
     if (event.currentPosition === event.duration) {
-      this.stopPlayer();
+      this.pausePlayer();
     }
   };
 
