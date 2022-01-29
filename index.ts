@@ -223,6 +223,7 @@ class AudioRecorderPlayer {
    */
   removePlayBackListener = (): void => {
     this._playerCallback = null;
+    this._playerSubscription.remove();
   };
 
   /**
