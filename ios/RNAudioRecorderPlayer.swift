@@ -26,13 +26,14 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
     var audioPlayer: AVPlayer!
     var playTimer: Timer?
     var timeObserverToken: Any?
+    var boundaryTimeObserverToken: Any?
 
     override static func requiresMainQueueSetup() -> Bool {
       return true
     }
 
     override func supportedEvents() -> [String]! {
-        return ["rn-playback", "rn-recordback"]
+        return ["rn-playback", "rn-recordback", "rn-playerDidFinishPlaying"]
     }
 
     func setAudioFileURL(path: String) {
@@ -331,6 +332,37 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
             self.timeObserverToken = nil
         }
     }
+    
+    func addObserverForWhenItemReachsEnd(){
+        NotificationCenter.default.addObserver(self, selector:#selector(self.playerDidFinishPlaying(note:)),name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: audioPlayer.currentItem)
+    }
+    
+//    func addBoundaryTimeObserver(){
+//        // Divide the asset's duration into quarters.
+//        let interval = CMTimeMultiplyByFloat64(audioPlayerAsset.duration, 0.25)
+//        var currentTime = kCMTimeZero
+//        var times = [NSValue]()
+//
+//        // Calculate boundary times
+//        while currentTime < asset.duration {
+//            currentTime = currentTime + interval
+//            times.append(NSValue(time:currentTime))
+//        }
+//
+//        timeObserverToken = player.addBoundaryTimeObserver(forTimes: times,
+//                                                           queue: .main) {
+//            // Update UI
+//        }
+//
+    func playerDidFinishPlaying(note: NSNotification){
+        self.sendEvent(withName: "rn-playerDidFinishPlaying", body: [
+            "currentPositionMillis": self.audioPlayerItem.currentTime().seconds * 1000,
+        ])
+
+    }
+    
+    
+    
 
 
     @objc(startPlayer:httpHeaders:resolve:rejecter:)
@@ -360,6 +392,7 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
         }
 
         addPeriodicTimeObserver()
+        addObserverForWhenItemReachsEnd()
         audioPlayer.play()
         resolve(audioFileURL?.absoluteString)
     }
@@ -375,6 +408,7 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
 
         audioPlayer.pause()
         self.removePeriodicTimeObserver()
+//        audioPlayer.removeTimeObserver(<#T##observer: Any##Any#>)
         self.audioPlayer = nil;
 
         resolve(audioFileURL?.absoluteString)

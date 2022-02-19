@@ -152,6 +152,7 @@ class AudioRecorderPlayer {
   private _hasPaused: boolean;
   private _hasPausedRecord: boolean;
   private _recorderSubscription: EmitterSubscription;
+  private _playerDidFinishPlayingSubscription: EmitterSubscription;
   private _playerSubscription: EmitterSubscription;
   private _playerCallback: (event: PlayBackType) => void;
 
@@ -196,6 +197,29 @@ class AudioRecorderPlayer {
     }
   };
 
+
+  /**
+ * Set listerner from native module for player player did finish playing.
+ * @returns {callBack((e: RecordBackType): void)}
+ */
+  addPlayerDidFinishPlayingListener = (
+    callback: () => void,
+  ): void => {
+    if (Platform.OS === 'android') {
+      // this._recorderSubscription = DeviceEventEmitter.addListener(
+      //   'rn-recordback',
+      //   callback,
+      // );
+    } else {
+      const myModuleEvt = new NativeEventEmitter(RNAudioRecorderPlayer);
+
+      this._playerDidFinishPlayingSubscription = myModuleEvt.addListener(
+        'rn-playerDidFinishPlaying',
+        callback,
+      );
+    }
+  };
+
   /**
    * Remove listener for recorder.
    * @returns {void}
@@ -224,6 +248,15 @@ class AudioRecorderPlayer {
   removePlayBackListener = (): void => {
     this._playerCallback = null;
     this._playerSubscription.remove();
+  };
+
+  /**
+   * remove listener for player did finish playing event.
+   * @returns {void}
+   */
+  removePlayerDidFinishPlayingListener = (): void => {
+    // this._playerCallback = null;
+    this._playerDidFinishPlayingSubscription.remove();
   };
 
   /**
