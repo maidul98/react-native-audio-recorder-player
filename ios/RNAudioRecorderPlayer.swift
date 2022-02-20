@@ -380,7 +380,7 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
 
         addPeriodicTimeObserver()
         addObserverForWhenItemReachsEnd()
-        addBoundaryTimeObserver()
+        // addBoundaryTimeObserver()
         audioPlayer.play()
         resolve(audioFileURL?.absoluteString)
     }

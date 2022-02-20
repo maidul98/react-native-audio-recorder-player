@@ -13,7 +13,8 @@ Pod::Spec.new do |s|
   s.platform     = :ios, "11.0"
   s.ios.deployment_target = "10.0"
 
-  s.source       = { :git => "https://github.com/hyochan/react-native-audio-recorder-player.git", :tag => "#{s.version}" }
+  s.source       = { :git => "https://github.com/maidul98/react-native-audio-recorder-player.git", :tag => "#{s.version}" }
+  # s.source = { :git => "/Users/maidulislam/Desktop/react-native-audio-recorder-player", :tag => "1.0.0" }
   s.source_files = "ios/**/*.{h,c,cc,cpp,m,mm,swift}"
 
   s.dependency 'React-Core'
