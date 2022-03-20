@@ -27,13 +27,15 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
     var playTimer: Timer?
     var timeObserverToken: Any?
     var boundaryTimeObserverToken: Any?
+    // Key-value observing context
+    private var playerItemContext = 0
 
     override static func requiresMainQueueSetup() -> Bool {
       return true
     }
 
     override func supportedEvents() -> [String]! {
-        return ["rn-playback", "rn-recordback", "rn-playerDidFinishPlaying", "rn-playerDidReachBoundary"]
+        return ["rn-playback", "rn-recordback", "rn-playerDidFinishPlaying", "rn-playerDidReachBoundary", "rn-isReadyToPlay"]
     }
 
     func setAudioFileURL(path: String) {
@@ -309,6 +311,67 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
 
     /**********               Player               **********/
 
+        override func observeValue(forKeyPath keyPath: String?,
+                               of object: Any?,
+                               change: [NSKeyValueChangeKey : Any]?,
+                               context: UnsafeMutableRawPointer?) {
+
+        // Only handle observations for the playerItemContext
+        guard context == &playerItemContext else {
+            super.observeValue(forKeyPath: keyPath,
+                               of: object,
+                               change: change,
+                               context: context)
+            return
+        }
+        
+        
+
+        if keyPath == #keyPath(AVPlayerItem.status) {
+            
+            print("SOMETHING ----------")
+            
+            let status: AVPlayerItem.Status
+            if let statusNumber = change?[.newKey] as? NSNumber {
+                status = AVPlayerItem.Status(rawValue: statusNumber.intValue)!
+            } else {
+                status = .unknown
+            }
+
+            // Switch over status value
+            switch status {
+            case .readyToPlay:
+                // Player item is ready to play.
+                print("-----------------Ready to play-----------------")
+                sendEvent(withName: "rn-isReadyToPlay", body: [
+                    "isReadyToPlay": true,
+                    "loadingError": false
+                ]);
+            case .failed:
+                // Player item failed. See error.
+                print("-----------------Failed to load-----------------")
+//                sendEvent(withName: "rn-recordback", body: status)
+                sendEvent(withName: "rn-isReadyToPlay", body: [
+                    "isReadyToPlay": false,
+                    "loadingError": true
+                ]);
+            case .unknown:
+                // Player item is not yet ready.
+                print("-----------------Not ready to play yet-----------------")
+                sendEvent(withName: "rn-isReadyToPlay", body: [
+                    "isReadyToPlay": false,
+                    "loadingError": true
+                ]);
+            @unknown default:
+                print("Something went wrong")
+                sendEvent(withName: "rn-recordback", body: [
+                    "isReadyToPlay": false,
+                    "loadingError": true
+                ]);
+            }
+        }
+    }
+
     func addPeriodicTimeObserver() {
         let timeScale = CMTimeScale(NSEC_PER_SEC)
         let time = CMTime(seconds: subscriptionDuration, preferredTimescale: timeScale)
@@ -380,7 +443,13 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
 
         addPeriodicTimeObserver()
         addObserverForWhenItemReachsEnd()
-        // addBoundaryTimeObserver()
+        
+        // Register as an observer of the player item's status property
+        audioPlayerItem.addObserver(self,
+                               forKeyPath: #keyPath(AVPlayerItem.status),
+                               options: [.old, .new],
+                               context: &playerItemContext)
+
         audioPlayer.play()
         resolve(audioFileURL?.absoluteString)
     }

@@ -113,6 +113,11 @@ export enum AVLinearPCMBitDepthKeyIOSType {
   'bit32' = 32,
 }
 
+export type IsReadyToPlay = {
+  isReadyToPlay: boolean;
+  loadingError: boolean;
+};
+
 export interface AudioSet {
   AVSampleRateKeyIOS?: number;
   AVFormatIDKeyIOS?: AVEncodingType;
@@ -197,6 +202,28 @@ class AudioRecorderPlayer {
     }
   };
 
+  /**
+   * Will send a event with player state status
+   * @returns {callBack((e: RecordBackType): void)}
+   */
+
+  addIsReadyToPlayListener = (
+    callback: (playbackStatus: IsReadyToPlay) => void,
+  ): void => {
+    if (Platform.OS === 'android') {
+      this._recorderSubscription = DeviceEventEmitter.addListener(
+        'rn-isReadyToPlay',
+        callback,
+      );
+    } else {
+      const myModuleEvt = new NativeEventEmitter(RNAudioRecorderPlayer);
+
+      this._recorderSubscription = myModuleEvt.addListener(
+        'rn-isReadyToPlay',
+        callback,
+      );
+    }
+  };
 
   /**
  * Set listerner from native module for player player did finish playing.
