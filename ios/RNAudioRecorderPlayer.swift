@@ -304,7 +304,7 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
         
         let returnObject: NSMutableDictionary = [:]
         returnObject["recordingLengthInMillis"] = lengthBeforeStopping
-        returnObject["recordingURI"] = audioFileURL?.relativePath
+        returnObject["recordingURI"] = audioFileURL?.absoluteString
 
         resolve(returnObject)
     }
