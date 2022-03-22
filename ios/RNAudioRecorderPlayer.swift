@@ -293,14 +293,20 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
             return
         }
 
+        let lengthBeforeStopping: Double = audioRecorder.currentTime*1000;
+        
         audioRecorder.stop()
 
         if (recordTimer != nil) {
             recordTimer!.invalidate()
             recordTimer = nil
         }
+        
+        let returnObject: NSMutableDictionary = [:]
+        returnObject["recordingLengthInMillis"] = lengthBeforeStopping
+        returnObject["recordingURI"] = audioFileURL?.relativePath
 
-        resolve(audioFileURL?.absoluteString)
+        resolve(returnObject)
     }
 
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {

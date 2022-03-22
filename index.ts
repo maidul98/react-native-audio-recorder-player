@@ -341,14 +341,12 @@ class AudioRecorderPlayer {
    * stop recording.
    * @returns {Promise<string>}
    */
-  stopRecorder = async (): Promise<string> => {
+  stopRecorder = async (): Promise<{ recordingLengthInMillis: number; recordingURI: string }> => {
     if (this._isRecording) {
       this._isRecording = false;
 
       return RNAudioRecorderPlayer.stopRecorder();
     }
-
-    return 'Already stopped';
   };
 
   /**

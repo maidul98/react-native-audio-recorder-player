@@ -260,7 +260,7 @@ var AudioRecorderPlayer = /** @class */ (function () {
                     this._isRecording = false;
                     return [2 /*return*/, RNAudioRecorderPlayer.stopRecorder()];
                 }
-                return [2 /*return*/, 'Already stopped'];
+                return [2 /*return*/];
             });
         }); };
         /**

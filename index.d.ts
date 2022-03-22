@@ -169,7 +169,10 @@ declare class AudioRecorderPlayer {
      * stop recording.
      * @returns {Promise<string>}
      */
-    stopRecorder: () => Promise<string>;
+    stopRecorder: () => Promise<{
+        recordingLengthInMillis: number;
+        recordingURI: string;
+    }>;
     /**
      * Resume playing.
      * @returns {Promise<string>}
