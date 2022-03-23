@@ -202,6 +202,52 @@ class AudioRecorderPlayer {
     }
   };
 
+
+  addPlayerDidFinishPlayingListener = (
+    callback: (recordingMeta: RecordBackType) => void,
+  ): void => {
+    if (Platform.OS === 'android') {
+      this._recorderSubscription = DeviceEventEmitter.addListener(
+        'rn-playerDidFinishPlaying',
+        callback,
+      );
+    } else {
+      const myModuleEvt = new NativeEventEmitter(RNAudioRecorderPlayer);
+
+      this._playerDidFinishPlayingSubscription = myModuleEvt.addListener(
+        'rn-playerDidFinishPlaying',
+        callback,
+      );
+    }
+  };
+
+
+  addPlayerDidReachBoundaryTimeListener = (
+    callback: (recordingMeta: RecordBackType) => void,
+  ): void => {
+    if (Platform.OS === 'android') {
+      this._recorderSubscription = DeviceEventEmitter.addListener(
+        'rn-playerDidReachBoundary',
+        callback,
+      );
+    } else {
+      const myModuleEvt = new NativeEventEmitter(RNAudioRecorderPlayer);
+
+      this._playerDidFinishPlayingSubscription = myModuleEvt.addListener(
+        'rn-playerDidReachBoundary',
+        callback,
+      );
+    }
+  };
+
+  /**
+  //  * Set subscription duration. Default is 0.5.
+  //  * @param {number} sec subscription callback duration in seconds.
+   */
+  setBoundaryTime = (sec: number): void => {
+    return RNAudioRecorderPlayer.setBoundaryTime(sec);
+  };
+
   /**
    * Will send a event with player state status
    * @returns {callBack((e: RecordBackType): void)}
@@ -220,28 +266,6 @@ class AudioRecorderPlayer {
 
       this._recorderSubscription = myModuleEvt.addListener(
         'rn-isReadyToPlay',
-        callback,
-      );
-    }
-  };
-
-  /**
- * Set listerner from native module for player player did finish playing.
- * @returns {callBack((e: RecordBackType): void)}
- */
-  addPlayerDidFinishPlayingListener = (
-    callback: () => void,
-  ): void => {
-    if (Platform.OS === 'android') {
-      // this._recorderSubscription = DeviceEventEmitter.addListener(
-      //   'rn-recordback',
-      //   callback,
-      // );
-    } else {
-      const myModuleEvt = new NativeEventEmitter(RNAudioRecorderPlayer);
-
-      this._playerDidFinishPlayingSubscription = myModuleEvt.addListener(
-        'rn-playerDidFinishPlaying',
         callback,
       );
     }

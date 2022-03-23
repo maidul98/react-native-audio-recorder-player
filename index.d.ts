@@ -119,16 +119,18 @@ declare class AudioRecorderPlayer {
      * @returns {callBack((e: RecordBackType): void)}
      */
     addRecordBackListener: (callback: (recordingMeta: RecordBackType) => void) => void;
+    addPlayerDidFinishPlayingListener: (callback: (recordingMeta: RecordBackType) => void) => void;
+    addPlayerDidReachBoundaryTimeListener: (callback: (recordingMeta: RecordBackType) => void) => void;
+    /**
+    //  * Set subscription duration. Default is 0.5.
+    //  * @param {number} sec subscription callback duration in seconds.
+     */
+    setBoundaryTime: (sec: number) => void;
     /**
      * Will send a event with player state status
      * @returns {callBack((e: RecordBackType): void)}
      */
     addIsReadyToPlayListener: (callback: (playbackStatus: IsReadyToPlay) => void) => void;
-    /**
-   * Set listerner from native module for player player did finish playing.
-   * @returns {callBack((e: RecordBackType): void)}
-   */
-    addPlayerDidFinishPlayingListener: (callback: () => void) => void;
     /**
      * Remove listener for recorder.
      * @returns {void}

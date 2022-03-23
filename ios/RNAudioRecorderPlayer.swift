@@ -29,6 +29,8 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
     var boundaryTimeObserverToken: Any?
     // Key-value observing context
     private var playerItemContext = 0
+    var boundedTimeObserverToken: Any?
+    var boundedTimeInSeconds: Double = Double.infinity
 
     override static func requiresMainQueueSetup() -> Bool {
       return true
@@ -123,10 +125,6 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
         self.subscriptionDuration = 0.1
     }
 
-    @objc(audioPlayerDidFinishPlaying:)
-    public static func audioPlayerDidFinishPlaying(player: AVAudioRecorder) -> Bool {
-        return true
-    }
 
     @objc(setSubscriptionDuration:)
     func setSubscriptionDuration(duration: Double) -> Void {
@@ -401,6 +399,15 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
         }
     }
     
+    func removeBoundaryTimeObserver() {
+        print("-------- REMOVED OBSERVER -----")
+        
+        if let boundedTimeObserverTokenLocal = boundedTimeObserverToken {
+            audioPlayer.removeTimeObserver(boundedTimeObserverTokenLocal)
+            boundedTimeObserverToken = nil
+        }
+    }
+
     func addObserverForWhenItemReachsEnd(){
         NotificationCenter.default.addObserver(self, selector:#selector(self.playerDidFinishPlaying(note:)),name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: audioPlayer.currentItem)
     }
@@ -471,7 +478,7 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
 
         audioPlayer.pause()
         self.removePeriodicTimeObserver()
-//        audioPlayer.removeTimeObserver(<#T##observer: Any##Any#>)
+        self.removeBoundaryTimeObserver()
         self.audioPlayer = nil;
 
         resolve(audioFileURL?.absoluteString)
@@ -498,6 +505,8 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
         if (audioPlayer == nil) {
             return reject("RNAudioPlayerRecorder", "Player is null", nil)
         }
+        
+//        addBoundaryTimeObserver()
 
         audioPlayer.play()
         resolve("Resumed!")
