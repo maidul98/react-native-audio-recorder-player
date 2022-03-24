@@ -427,6 +427,14 @@ class RNAudioRecorderPlayer: RCTEventEmitter, AVAudioRecorderDelegate {
         })
     }
 
+    @objc(setBoundaryTime:)
+    func setBoundaryTime(timeInSeconds: Double)  -> Void {
+        print("Changing time to ", timeInSeconds)
+        boundedTimeInSeconds = timeInSeconds
+        removeBoundaryTimeObserver() // remove previous observer
+        addBoundaryTimeObserver()
+    }
+
 
     @objc(startPlayer:httpHeaders:resolve:rejecter:)
     public func startPlayer(
